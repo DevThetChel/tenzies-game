@@ -9,6 +9,10 @@
   font-weight: bold;
 }
 
+.die-button.held {
+  background-color: #59e391;
+}
+
 button:hover {
   cursor: pointer;
 }
