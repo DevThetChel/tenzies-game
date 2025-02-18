@@ -1,23 +1,25 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 
 import "./App.css";
 import { Die } from "./components/Die";
 import { nanoid } from "nanoid";
+import Confetti from "react-confetti";
 
 function App() {
-  const [allDice, setAllDice] = useState(getAllNewDice());
+  const [allDice, setAllDice] = useState(() => getAllNewDice());
+
+  const buttonRef = useRef(null);
+  console.log(buttonRef);
 
   const gameWon =
     allDice.every((die) => die.isHeld) &&
     allDice.every((die) => die.number === allDice[0].number);
 
-  if (
-    allDice.every((die) => die.isHeld) &&
-    allDice.every((die) => die.number === allDice[0].number)
-  ) {
-    alert("Game Won!");
-    // setGameWon(true);
-  }
+  useEffect(() => {
+    if (gameWon) {
+      buttonRef.current.focus();
+    }
+  }, [gameWon]);
 
   function getAllNewDice() {
     const numbersArray = [];
@@ -35,11 +37,15 @@ function App() {
   }
 
   function rollDice() {
-    setAllDice((die) =>
-      die.map((die) =>
-        die.isHeld ? die : { ...die, number: Math.ceil(Math.random() * 6) }
-      )
-    );
+    if (!gameWon) {
+      setAllDice((die) =>
+        die.map((die) =>
+          die.isHeld ? die : { ...die, number: Math.ceil(Math.random() * 6) }
+        )
+      );
+    } else {
+      setAllDice(getAllNewDice());
+    }
   }
 
   function holdNumber(id) {
@@ -57,13 +63,19 @@ function App() {
   return (
     <>
       <div className="main">
+        {gameWon && <Confetti />}
+        <div aria-live="polite" className="sr-only">
+          {gameWon && (
+            <p>Congratulations! You won! Press "New Game" to start again. </p>
+          )}
+        </div>
         <h3 className="title">Tenzies</h3>
         <p className="des">
           Roll until all dice are the same. Click each die to freeze it at its
           current value between rolls.
         </p>
         <div className="dies-container">{diceElements}</div>
-        <button onClick={rollDice} className="roll-button">
+        <button ref={buttonRef} onClick={rollDice} className="roll-button">
           {gameWon ? "Next game" : "Roll"}
         </button>
       </div>

@@ -1,3 +1,7 @@
+body {
+  overflow: hidden;
+}
+
 .main {
   max-width: 45%;
   margin: 9rem auto 0rem auto;
